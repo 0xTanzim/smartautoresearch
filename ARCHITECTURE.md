@@ -28,7 +28,7 @@ An agent skill is usually just Markdown — prose the model reads and interprets
 - `scripts/orchestrate.sh` — classify, route, measure, screen.
 - `scripts/score-regression.sh` — the STABLE/UNSTABLE verdict math.
 
-The Markdown *calls* these scripts instead of re-deciding in prose. That's the seam: a deterministic, auditable, unit-tested layer beneath the LLM's reasoning. It's what lets 89 smoke assertions guard behavior that would otherwise only exist as English.
+The Markdown *calls* these scripts instead of re-deciding in prose. That's the seam: a deterministic, auditable, unit-tested layer beneath the LLM's reasoning. It's what lets 115 smoke assertions guard behavior that would otherwise only exist as English.
 
 ```mermaid
 flowchart TB

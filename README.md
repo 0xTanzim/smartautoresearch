@@ -38,6 +38,24 @@ It's the [Karpathy `autoresearch`](https://github.com/karpathy/autoresearch) loo
   best so far: 0.79 (+27% over baseline)   ·   8 experiments   ·   3 kept
 ```
 
+That output is one turn of this loop, on repeat:
+
+```mermaid
+flowchart LR
+    A["Baseline<br/>iteration 0"] --> B["One change<br/>(atomic, targets<br/>the weakest spot)"]
+    B --> C["Verify<br/>fresh, isolated context"]
+    C --> D{"Better?"}
+    D -->|"yes"| E["Keep — commit"]
+    D -->|"no"| F["Discard — revert"]
+    D -->|"tied, simpler"| E
+    E --> G["Log + learn"]
+    F --> G
+    G -->|"budget left, no plateau"| B
+    G -->|"done"| H["Report"]
+```
+
+Full architecture (dispatch, the four-way wall, the orchestrator, safety screens): [ARCHITECTURE.md](./ARCHITECTURE.md).
+
 ## 📦 Install
 
 Clone once, then install for your tool of choice:
@@ -65,20 +83,6 @@ A `--global` install always asks to confirm before touching your home-dir config
 **Requirements:** `bash`, `jq`, `awk`, `git`, `python3` — `apt-get install jq gawk git python3` / `brew install jq gawk git python3` (`python3` is only needed to build/verify the Codex `.toml` agents; everything else works without it).
 **Verify it's healthy:** `scripts/smoke-test.sh` → `RESULT: PASS`.
 **Sub-agents:** the four isolated loop roles register **natively** on Claude Code (`.claude/agents/`), OpenCode (`.opencode/agent/`), and Codex (`.codex/agents/*.toml`) — installing the skill for those three tools makes the roles spawnable by name with zero extra setup. Every other host (Kiro, Cursor, Gemini, Windsurf, and any other `AGENTS.md`/`SKILL.md` tool) spawns them via a documented portable fallback: the agent reads `agents/<role>.md` in full and passes that text as the spawned sub-agent's instructions — same isolation guarantee, no native registration required.
-
-## ✅ Does this actually work in Kiro / OpenCode / Codex?
-
-Yes — but it's worth knowing *why*, because it's the thing that broke early versions of this skill. Kiro, OpenCode's `skill` tool, and Codex's Skills mechanism all use the same **progressive-disclosure** loading model: the host auto-loads `SKILL.md` only, and loads any other file in the skill (`commands/*.md`, `agents/*.md`, `references/*.md`) *only when SKILL.md's own instructions explicitly tell the agent to open it*. A skill that just mentions those files in a table ("see `commands/loop.md`") never actually gets them read on these hosts — the agent improvises a shallow imitation of the loop instead of running the real one.
-
-`SKILL.md` here is written to avoid that: every dispatch branch is an imperative "STOP, read `commands/<name>.md` in full, right now" instruction, not a passive reference — see the "MANDATORY FILE-LOADING PROTOCOL" section at the top of `SKILL.md`. That's what makes the loop, the orchestrator, and the four-way separation actually execute on Kiro/OpenCode/Codex instead of degrading into a summary-only imitation.
-
-| Host | `SKILL.md` loading | Sub-agent spawning |
-|---|---|---|
-| Claude Code | on-demand, native | native (`.claude/agents/`) |
-| OpenCode | on-demand via `skill` tool, native | native (`.opencode/agent/`) |
-| Codex | on-demand ("progressive disclosure"), native | native (`.codex/agents/*.toml`) |
-| Kiro | on-demand, native (+ steering pointer) | portable fallback |
-| Cursor, Gemini CLI, Windsurf, others | varies — see `references/platforms.md` | portable fallback |
 
 ## 🚀 Usage
 
@@ -160,7 +164,19 @@ Chain them: `$smartautoresearch debug --fix`, or give a plain goal and let the o
 
 **Safe by default:** every shell command is screened before it runs (`rm -rf`, fork bombs, `curl|sh`, force-push are refused), secret files (`.env`, SSH keys) are never read into context, and it **never** ships or deploys without your explicit approval.
 
-**Want the full picture?** [ARCHITECTURE.md](./ARCHITECTURE.md) draws every flow — dispatch, the core loop, the orchestrator's routing table, the four-way wall, the safety screens, and multi-platform packaging — as both mermaid and plain-text diagrams.
+## 🧩 Platform compatibility
+
+Yes, it actually works on Kiro, OpenCode, and Codex — worth knowing *why*, because it's the thing that broke early versions of this skill. Kiro, OpenCode's `skill` tool, and Codex's Skills mechanism all use the same **progressive-disclosure** loading model: the host auto-loads `SKILL.md` only, and loads any other file in the skill (`commands/*.md`, `agents/*.md`, `references/*.md`) *only when SKILL.md's own instructions explicitly tell the agent to open it*. A skill that just mentions those files in a table ("see `commands/loop.md`") never actually gets them read on these hosts — the agent improvises a shallow imitation of the loop instead of running the real one.
+
+`SKILL.md` here is written to avoid that: every dispatch branch is an imperative "STOP, read `commands/<name>.md` in full, right now" instruction, not a passive reference — see the "MANDATORY FILE-LOADING PROTOCOL" section at the top of `SKILL.md`. That's what makes the loop, the orchestrator, and the four-way separation actually execute on Kiro/OpenCode/Codex instead of degrading into a summary-only imitation.
+
+| Host | `SKILL.md` loading | Sub-agent spawning |
+|---|---|---|
+| Claude Code | on-demand, native | native (`.claude/agents/`) |
+| OpenCode | on-demand via `skill` tool, native | native (`.opencode/agent/`) |
+| Codex | on-demand ("progressive disclosure"), native | native (`.codex/agents/*.toml`) |
+| Kiro | on-demand, native (+ steering pointer) | portable fallback |
+| Cursor, Gemini CLI, Windsurf, others | varies — see `references/platforms.md` | portable fallback |
 
 ## 🎛️ Common flags
 
