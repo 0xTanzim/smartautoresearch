@@ -120,4 +120,4 @@ Single-pass commands (`predict`, `research`, `plan`, `ship`, `evals`, `regressio
 - Column names preserved from prior generations, `timestamp` absence handled gracefully
 - Fuzzy column matching: `metric_value` → `metric`, `error_count` → `metric`
 - Files in project root (not `smartautoresearch/` subdirectory) → discovered during scan
-- All status values supported: baseline, keep, keep (reworked), discard, crash, no-op, hook-blocked, metric-error
+- All status values supported: baseline, keep, discard, crash, no-op, hook-blocked, metric-error (the exact set `commands/loop.md` Step 7 emits; a `keep` on the simplicity criterion is annotated "simpler wins" in the description column, not a distinct status)

@@ -540,6 +540,28 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+echo "== loop status-enum consistency (commands/loop.md <-> commands/evals.md) =="
+# The classic loop's Step 7 emits a fixed set of TSV status values; evals.md parses
+# exactly that set for trend/plateau analysis. A status that loop.md emits but evals.md
+# does not parse (or vice-versa) silently drops iterations from the analysis. This guard
+# pins the three process-outcome statuses that were previously defined in evals.md but
+# NOT in loop.md's decide step (a real internal-drift gap, caught cross-referencing the
+# autoresearch_extend classic loop). Every status below must appear in BOTH files.
+LOOP_MD="$SCRIPT_DIR/../commands/loop.md"
+EVALS_MD="$SCRIPT_DIR/../commands/evals.md"
+if [[ -f "$LOOP_MD" && -f "$EVALS_MD" ]]; then
+  enum_ok=1
+  for st in "no-op" "hook-blocked" "metric-error"; do
+    if grep -q "$st" "$LOOP_MD" && grep -q "$st" "$EVALS_MD"; then :; else
+      bad "loop status-enum: '$st' must be defined in BOTH loop.md and evals.md"; enum_ok=0
+    fi
+  done
+  [[ "$enum_ok" == 1 ]] && ok "loop status-enum: no-op / hook-blocked / metric-error defined in both loop.md and evals.md"
+else
+  bad "loop status-enum: loop.md or evals.md missing"
+fi
+
+# ---------------------------------------------------------------------------
 echo
 echo "==================== SMOKE SUMMARY ===================="
 echo "PASS=$pass FAIL=$fail"

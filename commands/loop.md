@@ -144,6 +144,20 @@ Run the guard. Guard failure → this iteration is automatically `discard`, rega
 | Metric worse | **discard** — revert |
 | Eval crashed | **crash** — triage (see Crash Triage) |
 | Guard failed | **discard** regardless of metric |
+| No change was actually made this iteration | **no-op** — see Process Outcomes |
+| A git hook rejected the commit | **hook-blocked** — see Process Outcomes |
+| Verify/eval ran but its output was not a parseable number | **metric-error** — see Process Outcomes |
+
+These are the complete set of status values the loop writes to the TSV —
+`baseline` (iteration 0), `keep`, `discard`, `crash`, `no-op`, `hook-blocked`,
+`metric-error`. `commands/evals.md` parses exactly this set for its trend and
+plateau analysis, so never invent a status outside it.
+
+#### Process Outcomes (not metric keep/discard decisions)
+Three outcomes are *process* results, not judgments on the metric — they still get logged (Rule 8: log everything), but they mean "this iteration didn't produce a comparable metric," not "the change was worse":
+- **no-op** — Step 2 produced nothing actionable, or the "change" was byte-identical to the incumbent. Nothing to revert. Log `no-op` and move on. A no-op does **not** count as a zero-progress cycle for plateau purposes (it's "no attempt," not "attempt that didn't help") — mirrors the orchestrator's unknown-units rule.
+- **hook-blocked** — git mode only: a pre-commit / commit-msg hook rejected the commit, so the change never landed as a commit. Log `hook-blocked`, restore the working tree to the incumbent (the change is not kept), and surface the hook's message so it's not mistaken for a metric regression. **Never** force past a hook with `--no-verify` to make the iteration "succeed" — a blocked hook is a real signal, not an obstacle to route around (see the repo's git-safety rules).
+- **metric-error** — the Verify command / eval *ran* but its output was not a parseable number (empty, `NaN`, a stack-trace-to-stdout, a format change). This is distinct from `crash` (the command itself failed to run): the command ran, the *result* is unusable. Revert the change (an unmeasurable change can't be kept on faith), log `metric-error`, and if it recurs, the eval/Verify contract itself is the bug to fix — not the target.
 
 #### Simplicity Criterion (karpathy)
 All else being equal, simpler is better — so "metric unchanged" is **not**
