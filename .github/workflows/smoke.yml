@@ -1,0 +1,38 @@
+name: smoke
+
+# The deterministic seam (orchestrate.sh + score-regression.sh) is the one
+# mechanically-testable surface of this skill. Every push and PR re-runs it so
+# a routing/verdict/safety regression can never land silently.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A newer push to the same ref cancels an in-flight run — no wasted minutes.
+concurrency:
+  group: smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # bash, python3, awk (gawk) and git are preinstalled on ubuntu-latest;
+      # only jq needs installing. Everything else the suite needs is in-repo.
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Tool versions (for debugging failed runs)
+        run: |
+          bash --version | head -1
+          jq --version
+          python3 --version
+          awk --version | head -1
+
+      - name: "Run smoke suite (must print RESULT: PASS)"
+        run: bash scripts/smoke-test.sh

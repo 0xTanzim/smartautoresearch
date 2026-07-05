@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark light">
+<title>SmartAutoResearch — Live Run Dashboard</title>
+<style>
+  /* =========================================================================
+     SmartAutoResearch — Design System (self-contained, offline, no web fonts)
+     -------------------------------------------------------------------------
+     Signature identity: "Iris Lab" — an indigo/iris signature accent (reserved
+     for brand + progress, orthogonal to the green/rose/amber status triad so it
+     never collides with status meaning) over a deep indigo-graphite canvas, with
+     a cyan "signal" companion. Deliberately NOT the GitHub palette.
+     Every colour token below was contrast-verified (WCAG 2.2 AA) against its
+     real composited background in both themes before being committed.
+     ========================================================================= */
+
+  :root {
+    /* ---- Type ---- */
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+    --font-mono: ui-monospace, "SF Mono", SFMono-Regular, "Cascadia Code", "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --fs-2xs: 0.6875rem; --fs-xs: 0.75rem; --fs-sm: 0.8125rem; --fs-md: 0.9375rem;
+    --fs-lg: 1.0625rem;  --fs-xl: 1.375rem; --fs-2xl: 1.875rem;
+    --fs-hero: clamp(2.5rem, 4vw + 1rem, 3.25rem);
+    --lh-tight: 1.1; --lh-snug: 1.35; --lh-body: 1.55;
+    --track-caps: 0.08em;
+
+    /* ---- Spacing / radii / motion ---- */
+    --sp-1: 0.25rem; --sp-2: 0.5rem; --sp-3: 0.75rem; --sp-4: 1rem; --sp-5: 1.25rem;
+    --sp-6: 1.5rem;  --sp-8: 2rem;   --sp-10: 2.5rem;  --sp-12: 3rem;
+    --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 22px; --r-pill: 999px;
+    --dur: 0.5s; --dur-fast: 0.22s; --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+    /* ---- DARK THEME (default; dark-first brand) ---- */
+    --bg: #0A0B14;
+    --bg-glow-1: rgba(99, 102, 241, 0.14);
+    --bg-glow-2: rgba(76, 225, 230, 0.08);
+    --surface-1: #151832;
+    --surface-2: #1F2347;
+    --surface-hover: #1B1F3E;
+    --track: #242848;
+    --border: #282C48;
+    --border-strong: #3A3F66;
+    --hairline: rgba(255, 255, 255, 0.05);
+
+    --text: #ECEEFC;
+    --text-2: #AFB4DD;
+    --text-muted: #9096C4;
+
+    --iris: #6366F1;        /* fills */
+    --iris-deep: #4B4ECF;   /* fills carrying white text */
+    --iris-text: #A9B1FF;   /* accent text/links/large numerals */
+    --iris-rgb: 99, 102, 241;
+    --cyan: #4CE1E6;
+    --cyan-rgb: 76, 225, 230;
+
+    --green: #3FE0A2;  --green-text: #57E6B0;  --green-rgb: 63, 224, 162;
+    --red:   #FB7593;  --red-text:   #FF8AA3;  --red-rgb:   251, 117, 147;
+    --amber: #F9C13C;  --amber-text: #FCD05C;  --amber-rgb: 249, 193, 60;
+
+    --tint-a: 0.16;         /* status tint alpha, verified for dark */
+    --delta-pos: var(--green-text);
+    --delta-neg: var(--red-text);
+
+    --spark-from: #A9B1FF;  --spark-to: #4CE1E6;
+    --gain-from: #6366F1;   --gain-to: #4CE1E6;
+
+    --shadow-1: 0 1px 0 rgba(255,255,255,0.04) inset, 0 10px 30px -18px rgba(0,0,0,0.8);
+    --shadow-hero: 0 1px 0 rgba(255,255,255,0.06) inset, 0 30px 70px -30px rgba(0,0,0,0.85);
+    --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--iris-text);
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #F4F5FB;
+      --bg-glow-1: rgba(99, 102, 241, 0.10);
+      --bg-glow-2: rgba(76, 225, 230, 0.06);
+      --surface-1: #FFFFFF;
+      --surface-2: #ECEEF9;
+      --surface-hover: #F0F1FB;
+      --track: #E2E4F2;
+      --border: #DEE0EF;
+      --border-strong: #C7CADF;
+      --hairline: rgba(24, 26, 46, 0.06);
+
+      --text: #181A2E;
+      --text-2: #4B4F70;
+      --text-muted: #5E628A;
+
+      --iris: #6366F1;
+      --iris-deep: #4B4ECF;
+      --iris-text: #4E46E0;
+      --iris-rgb: 99, 102, 241;
+      --cyan: #0E7C86;
+      --cyan-rgb: 14, 124, 134;
+
+      --green: #0A8659;  --green-text: #0A7A52;  --green-rgb: 10, 134, 89;
+      --red:   #E23670;  --red-text:   #C41E58;  --red-rgb:   226, 54, 112;
+      --amber: #B45309;  --amber-text: #8A5800;  --amber-rgb: 180, 83, 9;
+
+      --tint-a: 0.14;    /* status tint alpha, verified for light */
+      --spark-from: #4E46E0;  --spark-to: #0E7C86;
+      --gain-from: #6366F1;   --gain-to: #4338CA;
+
+      --shadow-1: 0 1px 2px rgba(24,26,46,0.06), 0 10px 30px -20px rgba(24,26,46,0.22);
+      --shadow-hero: 0 2px 8px rgba(24,26,46,0.08), 0 30px 70px -34px rgba(24,26,46,0.24);
+      --focus-ring: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--iris-text);
+    }
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg);
+    color: var(--text);
+    line-height: var(--lh-body);
+    min-height: 100vh;
+    padding: clamp(var(--sp-4), 3vw, var(--sp-10));
+    position: relative;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Ambient signature glow + faint instrument grid (decorative, low-alpha so it
+     never affects text/background contrast — text sits on opaque surfaces). */
+  body::before {
+    content: "";
+    position: fixed; inset: 0; z-index: -2; pointer-events: none;
+    background:
+      radial-gradient(1100px 520px at 78% -8%, var(--bg-glow-1), transparent 60%),
+      radial-gradient(900px 480px at 8% 4%, var(--bg-glow-2), transparent 62%);
+  }
+  body::after {
+    content: "";
+    position: fixed; inset: 0; z-index: -2; pointer-events: none; opacity: 0.5;
+    background-image:
+      linear-gradient(var(--hairline) 1px, transparent 1px),
+      linear-gradient(90deg, var(--hairline) 1px, transparent 1px);
+    background-size: 44px 44px;
+    -webkit-mask-image: radial-gradient(circle at 50% 0%, #000, transparent 72%);
+            mask-image: radial-gradient(circle at 50% 0%, #000, transparent 72%);
+  }
+
+  .app { max-width: 1080px; margin: 0 auto; }
+
+  .sr-only {
+    position: absolute !important; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0);
+    white-space: nowrap; border: 0;
+  }
+
+  .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+  .eyebrow {
+    font-size: var(--fs-2xs); font-weight: 600; letter-spacing: var(--track-caps);
+    text-transform: uppercase; color: var(--text-muted);
+  }
+
+  /* ============================ Topbar / brand ============================ */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4);
+    margin-bottom: var(--sp-8);
+  }
+  .brand { display: flex; align-items: center; gap: var(--sp-3); min-width: 0; }
+  .monogram {
+    width: 44px; height: 44px; flex: none; border-radius: 13px;
+    box-shadow: var(--shadow-1), 0 0 34px -10px rgba(var(--iris-rgb), 0.55);
+  }
+  .wordmark {
+    font-size: var(--fs-lg); font-weight: 700; letter-spacing: -0.01em; line-height: 1.1;
+    color: var(--text); white-space: nowrap;
+  }
+  .wordmark b { font-weight: 700; color: var(--iris-text); }
+  .brand-sub { display: block; font-size: var(--fs-xs); color: var(--text-muted); letter-spacing: 0.01em; }
+
+  .live {
+    display: inline-flex; align-items: center; gap: var(--sp-2);
+    font-size: var(--fs-2xs); font-weight: 700; letter-spacing: var(--track-caps);
+    text-transform: uppercase; color: var(--text-2);
+    padding: var(--sp-2) var(--sp-3); border-radius: var(--r-pill);
+    background: rgb(var(--green-rgb) / var(--tint-a));
+    border: 1px solid rgb(var(--green-rgb) / 0.5);
+  }
+  .live-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--green);
+    box-shadow: 0 0 0 0 rgb(var(--green-rgb) / 0.6); animation: pulse 2.4s var(--ease) infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgb(var(--green-rgb) / 0.55); }
+    70% { box-shadow: 0 0 0 7px rgb(var(--green-rgb) / 0); }
+    100% { box-shadow: 0 0 0 0 rgb(var(--green-rgb) / 0); }
+  }
+
+  /* ============================ Objective ============================ */
+  .objective {
+    position: relative; padding: var(--sp-5) var(--sp-6); margin-bottom: var(--sp-6);
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: var(--r-lg); box-shadow: var(--shadow-1); overflow: hidden;
+  }
+  .objective::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    background: linear-gradient(180deg, var(--iris), var(--cyan));
+  }
+  .objective .eyebrow { margin-bottom: var(--sp-2); }
+  .objective-text {
+    font-size: clamp(var(--fs-lg), 1.4vw + 0.5rem, var(--fs-xl));
+    font-weight: 600; color: var(--text); line-height: var(--lh-snug); letter-spacing: -0.01em;
+  }
+
+  /* ============================ KPI bento ============================ */
+  .kpis {
+    display: grid; gap: var(--sp-4); margin-bottom: var(--sp-4);
+    grid-template-columns: 1.55fr 1fr 1fr;
+    grid-template-areas: "hero iter base" "hero impr impr";
+  }
+  .card {
+    position: relative; background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: var(--r-lg); padding: var(--sp-5); box-shadow: var(--shadow-1);
+    transition: transform var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+  }
+  .card:hover { transform: translateY(-2px); border-color: var(--border-strong); }
+  .card .eyebrow { margin-bottom: var(--sp-3); display: flex; align-items: center; gap: var(--sp-2); }
+  .stat-value { font-size: var(--fs-2xl); font-weight: 700; color: var(--text); line-height: var(--lh-tight); letter-spacing: -0.02em; }
+  .stat-detail { font-size: var(--fs-xs); color: var(--text-muted); margin-top: var(--sp-2); }
+  .stat-detail b { color: var(--text-2); font-weight: 600; }
+
+  /* Hero: Current Best + trajectory */
+  .card--hero {
+    grid-area: hero; display: flex; flex-direction: column;
+    box-shadow: var(--shadow-hero);
+    background:
+      radial-gradient(120% 90% at 100% 0%, rgb(var(--iris-rgb) / 0.14), transparent 58%),
+      var(--surface-1);
+    border-color: rgb(var(--iris-rgb) / 0.35);
+  }
+  .card--hero::after {
+    content: ""; position: absolute; left: var(--sp-5); right: var(--sp-5); top: 0; height: 2px;
+    background: linear-gradient(90deg, var(--iris), var(--cyan)); border-radius: 2px; opacity: 0.9;
+  }
+  .hero-top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-3); flex-wrap: wrap; }
+  .metric-chip {
+    font-family: var(--font-mono); font-size: var(--fs-xs); font-weight: 600; color: var(--iris-text);
+    background: rgb(var(--iris-rgb) / var(--tint-a)); border: 1px solid rgb(var(--iris-rgb) / 0.4);
+    padding: var(--sp-1) var(--sp-3); border-radius: var(--r-pill); letter-spacing: 0.01em; white-space: nowrap;
+  }
+  .hero-value {
+    font-size: var(--fs-hero); font-weight: 700; color: var(--text); line-height: 1;
+    letter-spacing: -0.03em; margin: var(--sp-3) 0 var(--sp-1);
+    text-shadow: 0 0 34px rgb(var(--iris-rgb) / 0.28);
+  }
+  .hero-sub { font-size: var(--fs-sm); color: var(--text-2); }
+  .trajectory { margin-top: auto; padding-top: var(--sp-5); }
+  .trajectory .eyebrow { margin-bottom: var(--sp-2); }
+  .spark { display: block; width: 100%; height: 72px; }
+  .spark-line { fill: none; stroke: url(#sparkStroke); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .spark-dash { fill: none; stroke: var(--text-muted); stroke-width: 1; stroke-dasharray: 3 5; opacity: 0.6; }
+  .spark-dot { fill: var(--cyan); }
+  .spark-dot-halo { fill: rgb(var(--cyan-rgb) / 0.28); animation: halo 2.8s var(--ease) infinite; transform-origin: center; transform-box: fill-box; }
+  @keyframes halo { 0%,100% { opacity: 0.35; r: 5; } 50% { opacity: 0.75; r: 7; } }
+  .spark-draw { stroke-dasharray: 300; stroke-dashoffset: 300; animation: draw 1.9s var(--ease) 0.15s forwards; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  /* SVG gradient stops driven from CSS so they follow the active theme
+     (var() does not resolve inside SVG presentation attributes). */
+  #sparkStroke .s-from { stop-color: var(--spark-from); }
+  #sparkStroke .s-to   { stop-color: var(--spark-to); }
+  #sparkFill   .f-from  { stop-color: var(--spark-to); stop-opacity: 0.28; }
+  #sparkFill   .f-to    { stop-color: var(--spark-to); stop-opacity: 0; }
+
+  .stat-value--pos { color: var(--green-text); display: inline-flex; align-items: center; gap: var(--sp-2); }
+  .stat-value--pos::before { content: "\25B2" / ""; font-size: 0.6em; color: var(--green); }
+
+  /* ============================ Gain bar ============================ */
+  .gain {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--r-lg);
+    padding: var(--sp-5) var(--sp-6); margin-bottom: var(--sp-4); box-shadow: var(--shadow-1);
+  }
+  .gain-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-3); margin-bottom: var(--sp-3); }
+  .gain-title { font-size: var(--fs-md); font-weight: 600; color: var(--text); }
+  .gain-pct { font-size: var(--fs-xl); font-weight: 700; color: var(--iris-text); letter-spacing: -0.02em; }
+  .gain-track {
+    position: relative; height: 12px; background: var(--track); border-radius: var(--r-pill);
+    overflow: hidden; border: 1px solid var(--hairline);
+  }
+  .gain-fill {
+    height: 100%; border-radius: var(--r-pill); min-width: 3px;
+    background: linear-gradient(90deg, var(--gain-from), var(--gain-to));
+    box-shadow: 0 0 18px -2px rgb(var(--iris-rgb) / 0.6);
+    transition: width var(--dur) var(--ease); position: relative; overflow: hidden;
+  }
+  .gain-fill::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+    transform: translateX(-100%); animation: shimmer 2.6s var(--ease) infinite;
+  }
+  @keyframes shimmer { to { transform: translateX(100%); } }
+  .gain-scale { display: flex; justify-content: space-between; margin-top: var(--sp-2); font-size: var(--fs-2xs); color: var(--text-muted); }
+
+  /* ============================ Outcome pills ============================ */
+  .outcomes {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-4); margin-bottom: var(--sp-6);
+  }
+  .pill {
+    position: relative; display: flex; align-items: center; gap: var(--sp-3);
+    padding: var(--sp-4) var(--sp-5); border-radius: var(--r-md); background: var(--surface-1);
+    border: 1px solid var(--border); box-shadow: var(--shadow-1);
+  }
+  .pill-ico {
+    width: 40px; height: 40px; flex: none; border-radius: var(--r-sm);
+    display: grid; place-items: center; font-size: var(--fs-lg); font-weight: 700; line-height: 1;
+  }
+  .pill-ico::before { content: ""; }
+  .pill-body { display: flex; flex-direction: column; }
+  .pill-count { font-size: var(--fs-xl); font-weight: 700; color: var(--text); line-height: 1.1; }
+  .pill-label { font-size: var(--fs-2xs); font-weight: 600; letter-spacing: var(--track-caps); text-transform: uppercase; color: var(--text-muted); }
+
+  .pill--keep    { border-color: rgb(var(--green-rgb) / 0.42); }
+  .pill--discard { border-color: rgb(var(--red-rgb) / 0.42); }
+  .pill--crash   { border-color: rgb(var(--amber-rgb) / 0.5); }
+  .pill--keep .pill-ico    { background: rgb(var(--green-rgb) / var(--tint-a)); color: var(--green); border: 1px solid rgb(var(--green-rgb) / 0.5); }
+  .pill--discard .pill-ico { background: rgb(var(--red-rgb) / var(--tint-a));   color: var(--red);   border: 1px solid rgb(var(--red-rgb) / 0.5); }
+  .pill--crash .pill-ico   { background: rgb(var(--amber-rgb) / var(--tint-a)); color: var(--amber); border: 1px solid rgb(var(--amber-rgb) / 0.5); }
+  .pill--keep .pill-ico::before    { content: "\2713" / ""; }   /* check */
+  .pill--discard .pill-ico::before { content: "\2715" / ""; }   /* cross */
+  .pill--crash .pill-ico::before   { content: "\26A0\FE0E" / ""; } /* warning (text presentation) */
+
+  /* ============================ History table ============================ */
+  .history { margin-bottom: var(--sp-6); }
+  .history-head { display: flex; align-items: center; gap: var(--sp-3); margin-bottom: var(--sp-4); }
+  .history h2 { font-size: var(--fs-md); font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
+  .history-rule { flex: 1; height: 1px; background: var(--border); }
+
+  .table-wrap {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--r-lg);
+    box-shadow: var(--shadow-1); overflow-x: auto;
+  }
+  .table-wrap:focus-visible { outline: 3px solid var(--iris-text); outline-offset: 2px; }
+  table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
+  thead th {
+    text-align: left; padding: var(--sp-3) var(--sp-4); background: var(--surface-2);
+    color: var(--text-muted); font-weight: 600; font-size: var(--fs-2xs);
+    text-transform: uppercase; letter-spacing: var(--track-caps); white-space: nowrap;
+    border-bottom: 1px solid var(--border); position: sticky; top: 0;
+  }
+  thead th.col-num, thead th.col-score, thead th.col-delta { text-align: right; }
+  tbody td { padding: var(--sp-3) var(--sp-4); border-bottom: 1px solid var(--hairline); vertical-align: top; color: var(--text-2); }
+  tbody tr:last-child td { border-bottom: 0; }
+  tbody tr { transition: background var(--dur-fast) var(--ease); }
+  tbody tr:hover { background: var(--surface-hover); }
+  td.col-num { color: var(--text-muted); text-align: right; width: 1%; white-space: nowrap; }
+  td.col-hyp { color: var(--text); max-width: 340px; line-height: var(--lh-snug); }
+  td.col-score { text-align: right; color: var(--text); white-space: nowrap; }
+  td.col-delta { text-align: right; white-space: nowrap; font-weight: 600; }
+  td.col-status { white-space: nowrap; }
+
+  .delta-pos, .delta-neg, .delta-zero { display: inline-flex; align-items: center; gap: 0.35em; justify-content: flex-end; }
+  .delta-pos { color: var(--delta-pos); }
+  .delta-neg { color: var(--delta-neg); }
+  .delta-zero { color: var(--text-muted); }
+  .delta-pos::before  { content: "\25B2" / ""; font-size: 0.72em; }
+  .delta-neg::before  { content: "\25BC" / ""; font-size: 0.72em; }
+  .delta-zero::before { content: "\2013" / ""; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 0.4em;
+    padding: 0.2em 0.7em 0.2em 0.55em; border-radius: var(--r-pill);
+    font-size: var(--fs-2xs); font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase;
+    color: var(--text); border: 1px solid transparent;
+  }
+  .badge::before { font-size: 0.95em; font-weight: 700; }
+  .badge.keep     { background: rgb(var(--green-rgb) / var(--tint-a)); border-color: rgb(var(--green-rgb) / 0.5); }
+  .badge.discard  { background: rgb(var(--red-rgb) / var(--tint-a));   border-color: rgb(var(--red-rgb) / 0.5); }
+  .badge.crash    { background: rgb(var(--amber-rgb) / var(--tint-a)); border-color: rgb(var(--amber-rgb) / 0.5); }
+  .badge.baseline { background: var(--surface-2); border-color: var(--border-strong); color: var(--text-2); }
+  .badge.keep::before     { content: "\2713" / ""; color: var(--green); }
+  .badge.discard::before  { content: "\2715" / ""; color: var(--red); }
+  .badge.crash::before    { content: "\26A0\FE0E" / ""; color: var(--amber); }
+  .badge.baseline::before { content: "\25C6" / ""; color: var(--text-muted); } /* diamond */
+
+  /* ============================ Footer ============================ */
+  .footer {
+    display: flex; align-items: center; justify-content: center; gap: var(--sp-2); flex-wrap: wrap;
+    padding-top: var(--sp-5); border-top: 1px solid var(--border);
+    font-size: var(--fs-xs); color: var(--text-muted); text-align: center;
+  }
+  .footer-mark { width: 16px; height: 16px; border-radius: 5px; vertical-align: -3px; }
+  .footer time { color: var(--text-2); font-family: var(--font-mono); }
+
+  /* ============================ Responsive ============================ */
+  @media (max-width: 840px) {
+    .kpis { grid-template-columns: 1fr 1fr; grid-template-areas: "hero hero" "iter base" "impr impr"; }
+    .outcomes { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 520px) {
+    .kpis { grid-template-columns: 1fr; grid-template-areas: "hero" "iter" "base" "impr"; }
+    .topbar { flex-wrap: wrap; }
+    td.col-hyp { max-width: 190px; }
+  }
+
+  /* Accessibility: honour reduced-motion (WCAG 2.3.3 / 2.2 spirit) */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .spark-draw { stroke-dashoffset: 0; }
+    .gain-fill::after { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!--
+  =============================================================================
+  SmartAutoResearch — live run dashboard TEMPLATE
+  =============================================================================
+  WHAT THIS IS
+    An OPTIONAL, additive presentation view over the same data the run's TSV log
+    already holds (see commands/loop.md → "Dashboard"). It is NEVER the source of
+    truth — `*-results.tsv` (plus eval.py / rubric.md) is. If a dashboard write
+    ever fails, the loop continues uninterrupted (the dashboard is presentation,
+    not state).
+
+  HOW IT IS POPULATED (the contract loop.md depends on)
+    The loop regenerates dashboard.html from the TSV by string-substituting the
+    HTML-comment marker PAIRS below. To update a value, replace ONLY the text
+    between a marker's opening comment (named NAME) and its closing comment
+    (named /NAME). Do not rename, remove, or duplicate a marker. There are
+    exactly 14, each appears exactly once:
+      GOAL · ITERATIONS · MAX_ITER · BEST · METRIC_NAME · BASELINE · IMPROVEMENT
+      BEST_PCT · BEST_WIDTH · KEEP_COUNT · DISCARD_COUNT · CRASH_COUNT · ROWS · TIMESTAMP
+    BEST_WIDTH is a bare number used as a CSS width percentage (style="width: N%").
+    ROWS wraps ONE representative <tr> that the loop clones per iteration — set
+    each clone's status class (keep | discard | crash | baseline) and delta class
+    (delta-pos | delta-neg | delta-zero); colour, icon, and border follow the
+    class automatically.
+
+  HARD RULES
+    · Single self-contained file — NO network calls, NO CDN fonts/CSS/JS. Opens
+      offline from disk. System-font stack only.
+    · NO executable JavaScript (the script element is forbidden — an LLM regenerates this
+      by substituting the markers above). Inline SVG + CSS animation only.
+    · WCAG 2.2 AA: every colour pair was contrast-verified; status is conveyed by
+      icon + label (never colour alone); motion respects prefers-reduced-motion;
+      light/dark follow prefers-color-scheme.
+
+  NOTE ON THE HERO TRAJECTORY SVG
+    The "best-so-far trajectory" sparkline is a fixed, decorative brand motif
+    (aria-hidden) — best-so-far is monotonic by design, so a rising line is
+    directionally honest. It is NOT marker-populated; the authoritative
+    per-iteration data lives in the Iteration History table below.
+  =============================================================================
+-->
+
+<div class="app">
+
+  <!-- Shared inline-SVG gradient defs (no network; used by monogram + sparkline) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="brandGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#6366F1"/>
+        <stop offset="1" stop-color="#4CE1E6"/>
+      </linearGradient>
+      <linearGradient id="sparkStroke" x1="0" y1="1" x2="1" y2="0">
+        <stop class="s-from" offset="0"/>
+        <stop class="s-to" offset="1"/>
+      </linearGradient>
+      <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+        <stop class="f-from" offset="0"/>
+        <stop class="f-to" offset="1"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <header class="topbar">
+    <div class="brand">
+      <!-- Monogram: rising "signal steps" mark = iterative research climbing -->
+      <svg class="monogram" viewBox="0 0 44 44" aria-hidden="true" focusable="false">
+        <rect x="0" y="0" width="44" height="44" rx="13" fill="url(#brandGrad)"/>
+        <g fill="none" stroke="#0A0B14" stroke-opacity="0.92" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 30 L19 24 L26 27 L33 15"/>
+        </g>
+        <circle cx="33" cy="15" r="3.1" fill="#0A0B14" fill-opacity="0.92"/>
+        <circle cx="12" cy="30" r="2.4" fill="#0A0B14" fill-opacity="0.55"/>
+      </svg>
+      <div>
+        <h1 class="wordmark">Smart<b>Auto</b>Research</h1>
+        <span class="brand-sub">Autonomous research loop</span>
+      </div>
+    </div>
+    <span class="live"><span class="live-dot" aria-hidden="true"></span>Live</span>
+  </header>
+
+  <main>
+    <section class="objective" aria-labelledby="obj-label">
+      <p class="eyebrow" id="obj-label">Objective</p>
+      <p class="objective-text"><!-- GOAL -->Improve email subject line generator<!-- /GOAL --></p>
+    </section>
+
+    <h2 class="sr-only">Key metrics</h2>
+    <section class="kpis" aria-label="Key metrics">
+
+      <article class="card card--hero">
+        <div class="hero-top">
+          <span class="eyebrow">Current best</span>
+          <span class="metric-chip"><!-- METRIC_NAME -->pass_rate<!-- /METRIC_NAME --></span>
+        </div>
+        <div class="hero-value num"><!-- BEST -->&mdash;<!-- /BEST --></div>
+        <div class="hero-sub">Best result across all kept iterations</div>
+
+        <div class="trajectory">
+          <p class="eyebrow">Best-so-far trajectory</p>
+          <!-- Decorative, aria-hidden brand motif (see header note). Not data-bound. -->
+          <svg class="spark" viewBox="0 0 320 72" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <line class="spark-dash" x1="0" y1="60" x2="320" y2="60"/>
+            <path class="spark-fill" fill="url(#sparkFill)" d="M8,60 L44,56 L80,58 L116,44 L152,42 L188,29 L224,31 L260,18 L296,13 L296,72 L8,72 Z"/>
+            <path class="spark-line spark-draw" d="M8,60 L44,56 L80,58 L116,44 L152,42 L188,29 L224,31 L260,18 L296,13"/>
+            <circle class="spark-dot-halo" cx="296" cy="13" r="5"/>
+            <circle class="spark-dot" cx="296" cy="13" r="3.4"/>
+          </svg>
+        </div>
+      </article>
+
+      <article class="card" style="grid-area: iter;">
+        <span class="eyebrow">Iterations</span>
+        <div class="stat-value num"><!-- ITERATIONS -->0<!-- /ITERATIONS --></div>
+        <p class="stat-detail">of <b class="num"><!-- MAX_ITER -->20<!-- /MAX_ITER --></b> planned</p>
+      </article>
+
+      <article class="card" style="grid-area: base;">
+        <span class="eyebrow">Baseline</span>
+        <div class="stat-value num"><!-- BASELINE -->&mdash;<!-- /BASELINE --></div>
+        <p class="stat-detail">iteration&nbsp;0 reference</p>
+      </article>
+
+      <article class="card" style="grid-area: impr;">
+        <span class="eyebrow">Improvement</span>
+        <div class="stat-value stat-value--pos num"><!-- IMPROVEMENT -->&mdash;<!-- /IMPROVEMENT --></div>
+        <p class="stat-detail">gain over baseline</p>
+      </article>
+    </section>
+
+    <section class="gain" aria-labelledby="gain-title">
+      <div class="gain-head">
+        <span class="gain-title" id="gain-title">Best score &middot; progress to target</span>
+        <span class="gain-pct num"><!-- BEST_PCT -->0%<!-- /BEST_PCT --></span>
+      </div>
+      <div class="gain-track" aria-hidden="true">
+        <div class="gain-fill" style="width: <!-- BEST_WIDTH -->0<!-- /BEST_WIDTH -->%"></div>
+      </div>
+      <div class="gain-scale"><span>0%</span><span>Target &middot; 100%</span></div>
+    </section>
+
+    <h2 class="sr-only">Iteration outcomes</h2>
+    <section class="outcomes" aria-label="Iteration outcomes">
+      <div class="pill pill--keep">
+        <span class="pill-ico" aria-hidden="true"></span>
+        <span class="pill-body">
+          <span class="pill-count num"><!-- KEEP_COUNT -->0<!-- /KEEP_COUNT --></span>
+          <span class="pill-label">Kept</span>
+        </span>
+      </div>
+      <div class="pill pill--discard">
+        <span class="pill-ico" aria-hidden="true"></span>
+        <span class="pill-body">
+          <span class="pill-count num"><!-- DISCARD_COUNT -->0<!-- /DISCARD_COUNT --></span>
+          <span class="pill-label">Discarded</span>
+        </span>
+      </div>
+      <div class="pill pill--crash">
+        <span class="pill-ico" aria-hidden="true"></span>
+        <span class="pill-body">
+          <span class="pill-count num"><!-- CRASH_COUNT -->0<!-- /CRASH_COUNT --></span>
+          <span class="pill-label">Crashed</span>
+        </span>
+      </div>
+    </section>
+
+    <section class="history" aria-labelledby="hist-title">
+      <div class="history-head">
+        <h2 id="hist-title">Iteration history</h2>
+        <span class="history-rule" aria-hidden="true"></span>
+      </div>
+      <div class="table-wrap" role="region" aria-label="Iteration history (scrollable)" tabindex="0">
+        <table>
+          <caption class="sr-only">Per-iteration results: number, hypothesis, score, delta versus previous best, and keep/discard/crash outcome.</caption>
+          <thead>
+            <tr>
+              <th scope="col" class="col-num">#</th>
+              <th scope="col" class="col-hyp">Hypothesis</th>
+              <th scope="col" class="col-score">Score</th>
+              <th scope="col" class="col-delta">Delta</th>
+              <th scope="col" class="col-status">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Row template: the loop clones the single <tr> between the ROWS
+                 markers, once per iteration (newest first). Per clone set:
+                 · status class → keep | discard | crash | baseline
+                 · delta class  → delta-pos | delta-neg | delta-zero
+                 Colour, icon, and border follow the class; do not hand-tune.
+                 The delta <span>'s TEXT CONTENT is the bare numeric value only
+                 (e.g. "+0.08", "-0.03", or an em-dash for zero/baseline) — the
+                 class's ::before rule already supplies the ▲/▼/– glyph. Putting
+                 an arrow or icon character INTO the text produces a doubled
+                 glyph (e.g. "▼▼ -0.03"); the badge status text works the same
+                 way (bare label like "keep", the ::before supplies its icon). -->
+            <!-- ROWS -->
+            <tr>
+              <td class="col-num num">0</td>
+              <td class="col-hyp">Baseline measurement</td>
+              <td class="col-score num">&mdash;</td>
+              <td class="col-delta"><span class="delta-zero num">&mdash;</span></td>
+              <td class="col-status"><span class="badge baseline">baseline</span></td>
+            </tr>
+            <!-- /ROWS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <svg class="footer-mark" viewBox="0 0 44 44" aria-hidden="true" focusable="false">
+      <rect width="44" height="44" rx="13" fill="url(#brandGrad)"/>
+      <path d="M12 30 L19 24 L26 27 L33 15" fill="none" stroke="#0A0B14" stroke-opacity="0.92" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span>SmartAutoResearch &middot; updated <time><!-- TIMESTAMP -->&mdash;<!-- /TIMESTAMP --></time></span>
+  </footer>
+
+</div>
+
+</body>
+</html>

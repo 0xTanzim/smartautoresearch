@@ -1,0 +1,8 @@
+interface:
+  display_name: "SmartAutoResearch"
+  short_description: "Autonomous goal-directed iteration & research engine"
+  brand_color: "#7C3AED"
+  default_prompt: "Set a goal (or a metric + verify command) and let it loop until done: modify, verify, judge, keep/discard."
+
+policy:
+  allow_implicit_invocation: true

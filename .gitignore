@@ -1,0 +1,13 @@
+# Generated per-platform packaging trees (scripts/transform.sh output)
+build/
+
+# Runtime state written into a working project during a loop (never part of the skill)
+smartautoresearch-lessons.md
+smartautoresearch-worklog.md
+smartautoresearch-ideas.md
+smartautoresearch/loop-*/
+orchestrator-state.json
+
+# Python bytecode from running the example eval / smoke tests
+__pycache__/
+*.pyc

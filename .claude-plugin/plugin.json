@@ -1,0 +1,9 @@
+{
+  "name": "smartautoresearch",
+  "description": "Autonomous goal-directed iteration engine \u2014 hybrid of the four-way-separated optimize loop, a 15-subcommand orchestrator with goal-archetype routing and plateau detection, parallel web research, and a requirements-drift loop. Modify, verify, judge, keep/discard against any metric or rubric. Two evaluation modes: deterministic (eval.py) and AI judge (rubric). Ships real, smoke-tested orchestration scripts.",
+  "version": "1.0.0",
+  "author": {
+    "name": "0xTanzim",
+    "url": "https://github.com/0xTanzim"
+  }
+}
