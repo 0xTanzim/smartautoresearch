@@ -42,7 +42,7 @@ All nine hold, and each one is cited above. That's the point — the new stuff i
 
 `uditgoenka/autoresearch` is the widely-used Claude Code / OpenCode / Codex skill — itself built on Karpathy — and it's where this skill's 13 orchestrator subcommands come from. SmartAutoResearch keeps that command surface and adds a few things on top:
 
-- **A deterministic seam that actually runs.** `scripts/orchestrate.sh` + `scripts/score-regression.sh` are real, executable, and smoke-tested (115 assertions) — the routing and verdict logic was prose before.
+- **A deterministic seam that actually runs.** `scripts/orchestrate.sh` + `scripts/score-regression.sh` are real, executable, and smoke-tested (119 assertions) — the routing and verdict logic was prose before.
 - **The four-way eval separation, made a hard contract** instead of an idea.
 - **A parallel `research` subcommand** with its own isolated sub-agent.
 - **The Loop-4 lessons file** and a self-improvement mode, so the system compounds across runs.

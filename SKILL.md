@@ -230,7 +230,7 @@ skills/smartautoresearch/
   scripts/
     orchestrate.sh                — classify, seed, fold, next-hop, units, plateau, screen-cmd, screen-path, verdict, validate-state, screen-state-predicate
     score-regression.sh           — verdict math for the regression gate
-    smoke-test.sh                 — deterministic smoke tests for scripts + example eval + packaging (115 assertions)
+    smoke-test.sh                 — deterministic smoke tests for scripts + example eval + packaging (119 assertions)
     transform.sh                  — emit per-platform packaging trees (build/<platform>/)
     install.sh                    — install a built tree into a tool's project/global config
   commands/

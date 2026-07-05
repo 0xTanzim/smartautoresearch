@@ -5,7 +5,7 @@
 | Archetype | Trigger Keywords | Mode | Preset Pipeline |
 |---|---|---|---|
 | `ship-ready` | ship, release, deploy, publish, production-ready, merge | loop | probe, debug, fix, regression, ship |
-| `optimize-metric` | improve, optimize, increase, reduce, raise, boost, iterate, maximize, minimize, tune, refine, lift, faster, smaller, coverage, score, pass_rate, hit_rate | loop | plan, (core loop), evals |
+| `optimize-metric` | improve, optimize, increase, reduce, raise, boost, iterate, maximize, minimize, tune, refine, lift, faster, smaller, coverage, score, pass_rate, hit_rate, update, revise, enhance, polish, rework, upgrade | loop | plan, (core loop), evals |
 | `fix-broken` | fix, broken, failing, error, crash, bug, cannot run, tests fail | loop | debug, fix, regression |
 | `harden` | security, vulnerability, OWASP, CVE, harden, lock down | loop | security, fix, security |
 | `build-feature` | build, add, implement, create, new feature, acceptance test | loop | (acceptance-test derive), debug, fix, regression |

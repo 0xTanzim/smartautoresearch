@@ -28,7 +28,7 @@ An agent skill is usually just Markdown — prose the model reads and interprets
 - `scripts/orchestrate.sh` — classify, route, measure, screen.
 - `scripts/score-regression.sh` — the STABLE/UNSTABLE verdict math.
 
-The Markdown *calls* these scripts instead of re-deciding in prose. That's the seam: a deterministic, auditable, unit-tested layer beneath the LLM's reasoning. It's what lets 115 smoke assertions guard behavior that would otherwise only exist as English.
+The Markdown *calls* these scripts instead of re-deciding in prose. That's the seam: a deterministic, auditable, unit-tested layer beneath the LLM's reasoning. It's what lets 119 smoke assertions guard behavior that would otherwise only exist as English.
 
 ```mermaid
 flowchart TB
@@ -42,7 +42,7 @@ flowchart TB
     SK -->|"classify / next-hop / units / plateau / screen"| OR
     SK -->|"verdict"| SR
     OR -->|"verdict (delegates)"| SR
-    SEAMTEST["smoke-test.sh — 115 assertions"] -.->|guards| OR
+    SEAMTEST["smoke-test.sh — 119 assertions"] -.->|guards| OR
     SEAMTEST -.->|guards| SR
 ```
 
@@ -461,7 +461,7 @@ Each hop writes its own `handoff.json`; the orchestrator reads it and folds it i
 
 ## Testing architecture
 
-`scripts/smoke-test.sh` is the seam's regression harness — **115 deterministic assertions**, hermetic (builds its own JSON/TSV fixtures in a temp dir), no clock/network/random. It covers:
+`scripts/smoke-test.sh` is the seam's regression harness — **119 deterministic assertions**, hermetic (builds its own JSON/TSV fixtures in a temp dir), no clock/network/random. It covers:
 
 - `bash -n` syntax on all three scripts
 - `classify` — all 10 archetypes route correctly
@@ -478,7 +478,7 @@ That last packaging check is why a change to the seam is caught twice: `transfor
 ```
   edit orchestrate.sh
      │
-     ├─ root smoke-test.sh ................ 115 assertions
+     ├─ root smoke-test.sh ................ 119 assertions
      └─ transform.sh copies scripts+tests ─▶ built tree self-test (same 89)
                                               (SAR_SMOKE_SKIP_PACKAGING=1, no recursion)
 ```

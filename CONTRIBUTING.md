@@ -4,7 +4,7 @@ Thanks for wanting to help. SmartAutoResearch is mostly Markdown plus two small 
 
 ## The ground rules
 
-1. **Keep the scripts green.** Touch anything in `scripts/` and it has to stay `bash -n` clean and pass `scripts/smoke-test.sh` — 115 assertions right now. Run it before you open a PR:
+1. **Keep the scripts green.** Touch anything in `scripts/` and it has to stay `bash -n` clean and pass `scripts/smoke-test.sh` — 119 assertions right now. Run it before you open a PR:
    ```bash
    bash scripts/smoke-test.sh   # you want RESULT: PASS
    ```

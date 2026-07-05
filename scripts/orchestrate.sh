@@ -72,7 +72,7 @@ cmd_classify() {
     archetype="harden"; mode="loop"
   elif [[ "$g" =~ (fix|broken|failing|error|crash|bug|cannot run|tests fail) ]]; then
     archetype="fix-broken"; mode="loop"
-  elif [[ "$g" =~ (improve|optimize|increase|reduce|raise|boost|iterate|maximize|minimize|tune|refine|lift|faster|smaller|coverage|score|pass.?rate|hit.?rate) ]]; then
+  elif [[ "$g" =~ (improve|optimize|increase|reduce|raise|boost|iterate|maximize|minimize|tune|refine|lift|faster|smaller|coverage|score|pass.?rate|hit.?rate|update|revise|enhance|polish|rework|upgrade) ]]; then
     archetype="optimize-metric"; mode="loop"
   elif [[ "$g" =~ (what should i build|ideas|improvements|prd|roadmap) ]]; then
     # Must be checked before build-feature: "what should I build" contains

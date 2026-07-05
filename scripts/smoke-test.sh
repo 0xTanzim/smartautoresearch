@@ -63,6 +63,15 @@ classify_is "research the latest best practices"     "research"
 classify_is "raise pass_rate on the cold-email prompt" "optimize-metric"
 classify_is "iterate on the landing page copy"         "optimize-metric"
 classify_is "boost conversion on the checkout page"    "optimize-metric"
+# "update my <skill/thing>" is a very common self-improvement phrasing (Loop 4, see
+# references/lessons-memory.md) that previously fell through every archetype pattern
+# to the "explore" catch-all — routing a self-improvement request to probe/scenario/plan
+# instead of the classic loop, silently skipping Phase 1-3 (eval agent, test runner,
+# guard, keep/discard) entirely. This is the exact misroute a user hit in production.
+classify_is "update my premium-redesign skill"         "optimize-metric"
+classify_is "revise the prompt for clarity"             "optimize-metric"
+classify_is "enhance this document"                     "optimize-metric"
+classify_is "polish the README"                          "optimize-metric"
 
 # ---------------------------------------------------------------------------
 echo "== seed: archetype -> preset pipeline (GAP D1, was prose-only) =="

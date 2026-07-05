@@ -6,7 +6,7 @@
 It changes one thing, tests it, keeps what works, reverts what doesn't, and repeats until the number goes up. You come back to a log of experiments and a better result.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![Smoke tests](https://img.shields.io/badge/smoke%20tests-115%20passing-brightgreen.svg)](./scripts/smoke-test.sh)
+[![Smoke tests](https://img.shields.io/badge/smoke%20tests-119%20passing-brightgreen.svg)](./scripts/smoke-test.sh)
 [![Platforms](https://img.shields.io/badge/platforms-8%20native%20%2B%20universal-6366F1.svg)](./references/platforms.md)
 [![Agent Skills](https://img.shields.io/badge/spec-agentskills.io-8A2BE2.svg)](https://agentskills.io)
 

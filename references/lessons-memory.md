@@ -67,6 +67,14 @@ Scope: commands/loop.md
 --mode ai_judge
 ```
 
+**This is still the classic loop — it does not skip Phase 1-3.** A self-improvement invocation is dispatched exactly like any other `Metric:`/`Scope:`-bearing goal (`SKILL.md`'s dispatch table routes it to the classic loop). Concretely, right now, before doing anything else:
+
+1. **Read `commands/loop.md` in full** if you have not already loaded it this session — this file only adds self-optimization-specific criteria and guardrails on top of that protocol; it is never a substitute for it.
+2. **Actually spawn `smartautoresearch-eval-agent`** (Phase 1 of `commands/loop.md`) to write the eval/rubric for the criteria below — do not write the eval yourself, and do not skip to editing the target file directly.
+3. **Actually spawn `smartautoresearch-test-runner`** for the baseline (Phase 2) and every iteration (Phase 3) — do not generate the "after" version of the target file yourself and call it done.
+4. **Actually run the Guard** (`scripts/smoke-test.sh`, see below) and **actually decide keep/discard** per Phase 3 Step 7 — a self-improvement run that never runs the guard, never computes a real before/after metric, and never produces a `loop-results.tsv` did not run the loop; it ran an unverified edit with a narrated process description. Treat a summary that claims "auto-heal loop," "independent score," or "3 attempts" with no corresponding TSV row, no eval artifact, and no sub-agent invocation as **not having happened** — this is exactly the failure this section exists to prevent.
+5. If you cannot spawn an isolated sub-agent/session at all in your current host, this is a **stop-and-tell-the-user** condition (per `commands/loop.md` and `SKILL.md` Sub-Agents) — never silently fall back to "read the files, edit them, write a prose summary of a process that didn't run."
+
 Criteria for skill-self-optimization (all must pass The Three Rules, `references/three-rules.md`):
 - Instruction adherence: a fresh agent given the command file produces the documented output shape without extra prompting.
 - No contradiction with `SKILL.md` or the four-way-separation contract.
@@ -76,3 +84,4 @@ Guardrails specific to self-optimization:
 - The **eval/judge for a skill-file run must be a different context** from the file being optimized — the four-way separation (`references/four-way-separation.md`) matters even more here, because the optimizer editing `loop.md` must not also be scoring whether `loop.md` is good.
 - Run the full smoke suite (`scripts/smoke-test.sh`) as the **Guard** on any self-optimization run that touches `scripts/` or anything a script depends on — a skill change that breaks its own deterministic seam is an automatic discard regardless of the judge score.
 - Never let a self-optimization run loosen a safety invariant to "improve" a metric. Safety invariants are additions-only; a change that weakens `screen-cmd`, `screen-path`, or the no-auto-ship rule is an automatic discard even if every other signal improved.
+- **This applies identically when the target is a *different* skill's files** (e.g. `Goal: improve <other-skill>/SKILL.md`), not just SmartAutoResearch's own — the target file's own Guard (its test/lint/build suite if it has one) substitutes for `smoke-test.sh`, and if the target has no Guard command, say so explicitly rather than silently skipping Phase 3's guard-check step.
